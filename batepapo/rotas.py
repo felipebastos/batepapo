@@ -1,18 +1,22 @@
 from flask import jsonify, request, abort, render_template, session, redirect
 from flask import current_app as app
 
+# entidades do sistema
+from batepapo.entidades import usuarios, Usuario
+
+# gerenciador de acesso do projeto
+from batepapo import loginmanager
+
+# controle de acesso do plugin
+from flask_login import login_user, logout_user, login_required, current_user
+
 bccdw = []
 animes = []
 viagens = []
 
-class Usuario():
-    def __init__(self, nome, senha):
-        self.nome = nome
-        self.senha = senha
+loginmanager.login_view = '/login'
 
-# Dicionário a preencher com o par id:usuario
-# (onde id é a chave inteira e usuario é instância da classe Usuario)
-usuarios = {}
+
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
@@ -46,36 +50,34 @@ def login():
         for id in usuarios.keys():
             usuario = usuarios[id]
             if nome == usuario.nome and senha == usuario.senha:
-                session['usuario'] = usuario.nome
+                login_user(usuario)
                 return render_template('logou.html')
         return 'usuário ou senha incorretos'
     else:
         return abort(405)
 
 @app.route('/logout')
+@login_required
 def logout():
-    session.pop('usuario', None)
+    logout_user()
     return redirect('/login')
 
 
 @app.route('/teste')
+@login_required
 def teste():
-    if 'usuario' not in session:
-        return abort(403)
-    return session['usuario']
+    return current_user.nome
 
 
 @app.route('/home')
+@login_required
 def home():
-    if 'usuario' not in session:
-        return abort(403)
     return render_template('index.html')
 
 
 @app.route("/chat", methods=['POST'])
+@login_required
 def chat():
-    if 'usuario' not in session:
-        return abort(403)
     if request.method == 'POST':
         data = request.get_json()
         if data['chat'] == 'bccdw':
@@ -89,9 +91,8 @@ def chat():
             return jsonify(viagens), 200
 
 @app.route('/chat/<chat>')
+@login_required
 def le_chat(chat):
-    if 'usuario' not in session:
-        return abort(403)
     if chat == 'bccdw':
         return jsonify(bccdw), 200
     elif chat == 'animes':
