@@ -1,4 +1,6 @@
 from flask import Flask
+import click
+
 from flask.cli import with_appcontext
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -18,11 +20,14 @@ def create_app():
     loginmanager.init_app(app)
     db.init_app(app)
 
+    app.cli.add_command(init_db)
+
     with app.app_context():
         from batepapo import rotas
 
     return app
 
+@click.command('init-db')
 @with_appcontext
 def init_db():
     from . import entidades

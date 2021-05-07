@@ -2,10 +2,10 @@ from flask import jsonify, request, abort, render_template, session, redirect
 from flask import current_app as app
 
 # entidades do sistema
-from batepapo.entidades import usuarios, Usuario
+from batepapo.entidades import Usuario
 
 # gerenciador de acesso do projeto
-from batepapo import loginmanager
+from batepapo import loginmanager, db
 
 # controle de acesso do plugin
 from flask_login import login_user, logout_user, login_required, current_user
@@ -23,16 +23,29 @@ def cadastro():
     if request.method == 'GET':
         return render_template('teladecadastro.html')
     elif request.method == 'POST':
-        nome = request.form['nome']
-        senha = request.form['senha']
+        nome_cad = request.form['nome']
+        senha_cad = request.form['senha']
 
+        jatem = Usuario.query.filter_by(nome=nome_cad).first()
+
+        if jatem is not None:
+            return 'Usuário já existe.'
+        else:
+            novo = Usuario()
+            novo.nome = nome_cad
+            novo.senha = senha_cad
+
+            db.session.add(novo)
+            db.session.commit()
+
+        '''
         for id in usuarios.keys():
             usuario = usuarios[id]
             if nome == usuario.nome:
                 return 'Usuário já existe.'
         novo = Usuario(nome, senha)
         usuarios[len(usuarios)+1] = novo
-
+        '''
         return 'cadastro bem sucedido!'
 
     else:
@@ -44,14 +57,26 @@ def login():
     if request.method == 'GET':
         return render_template('teladelogin.html')
     elif request.method == 'POST':
-        nome = request.form['nome']
-        senha = request.form['senha']
+        nome_log = request.form['nome']
+        senha_log = request.form['senha']
 
+        tem = Usuario.query.filter_by(nome=nome_log).first()
+
+        if tem is None:
+            return 'Usuário não existe'
+        else:
+            if tem.senha == senha_log:
+                login_user(tem)
+                return render_template('logou.html')
+            
+
+        '''
         for id in usuarios.keys():
             usuario = usuarios[id]
             if nome == usuario.nome and senha == usuario.senha:
                 login_user(usuario)
                 return render_template('logou.html')
+        '''
         return 'usuário ou senha incorretos'
     else:
         return abort(405)
