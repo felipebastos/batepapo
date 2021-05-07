@@ -27,7 +27,7 @@ def create_app():
 
     return app
 
-@click.command('init-db')
+@click.command('init-db') # flask init-db
 @with_appcontext
 def init_db():
     from . import entidades
