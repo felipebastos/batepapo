@@ -5,7 +5,11 @@ class Usuario(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(20), unique=True, nullable=False)
     senha = db.Column(db.String(100), nullable=False)
+<<<<<<< HEAD
     email = db.Column(db.String(100))
+=======
+    email = db.Column(db.String(200))
+>>>>>>> a8c9c3a5ff0679e07594258a6736287ce71fefc8
 
     '''
     def __init__(self, nome, senha):
