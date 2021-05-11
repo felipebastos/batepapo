@@ -10,13 +10,14 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///batepapo.db'
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///batepapo.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://felipebasnun:1A2s3d4F@felipebasnun.mysql.pythonanywhere-services.com/felipebasnun$batepapo'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
     app.secret_key = '123456'
 
-    # configurações de plugins
+    # configuracoes de plugins
     loginmanager.init_app(app)
     db.init_app(app)
 
@@ -31,5 +32,6 @@ def create_app():
 @with_appcontext
 def init_db():
     from . import entidades
-    db.create_all()
+    app = create_app()
+    db.create_all(app=app)
     print('Criado com sucesso')
